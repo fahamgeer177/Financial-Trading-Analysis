@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Financial Trading Assistant</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+    body {
+      background: #f4f7fa;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 700px;
+      width: 90%;
+      margin-top: 60px;
+      padding: 30px;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    }
+    h1 {
+      font-size: 28px;
+      margin-bottom: 24px;
+      text-align: center;
+      color: #1a202c;
+    }
+    label {
+      font-weight: 600;
+      margin-top: 12px;
+      display: block;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    button {
+      width: 100%;
+      margin-top: 24px;
+      padding: 12px;
+      background-color: #4f46e5;
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #3730a3;
+    }
+    pre {
+      background: #edf2f7;
+      padding: 16px;
+      margin-top: 20px;
+      border-radius: 8px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Financial Trading Assistant</h1>
+    <form id="tradingForm">
+      <label for="stock">Stock Symbol</label>
+      <input type="text" id="stock" name="stock" required placeholder="e.g., TSLA" />
+
+      <label for="capital">Initial Capital</label>
+      <input type="number" id="capital" name="capital" required placeholder="e.g., 200000" />
+
+      <label for="risk">Risk Tolerance</label>
+      <select id="risk" name="risk">
+        <option>Low</option>
+        <option>Medium</option>
+        <option>High</option>
+      </select>
+
+      <label for="strategy">Trading Strategy</label>
+      <select id="strategy" name="strategy">
+        <option>Day Trading</option>
+        <option>Swing Trading</option>
+        <option>Scalping</option>
+        <option>Position Trading</option>
+      </select>
+
+      <label for="news">Consider News Impact?</label>
+      <select id="news" name="news">
+        <option value="true">Yes</option>
+        <option value="false">No</option>
+      </select>
+
+      <button type="submit">Analyze</button>
+    </form>
+
+    <pre id="output"></pre>
+  </div>
+
+  <script>
+    const form = document.getElementById('tradingForm');
+    const output = document.getElementById('output');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      output.textContent = 'Analyzing...';
+
+      const data = {
+        stock_selection: form.stock.value,
+        initial_capital: form.capital.value,
+        risk_tolerance: form.risk.value,
+        trading_strategy_preference: form.strategy.value,
+        news_impact_consideration: form.news.value === 'true'
+      };
+
+      try {
+        const res = await fetch('/analyze-trading', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        const result = await res.json();
+
+        if (result.success && result.result) {
+          const finalOutput = result.result.final_output || "No final output available.";
+          output.innerHTML = `<h4>Final Output:</h4><pre>${finalOutput}</pre>`;
+        } else if (result.error) {
+          output.textContent = 'Error: ' + result.error; // Display backend error
+        } else {
+          output.textContent = '⚠️ No task outputs found.';
+        }
+      } catch (err) {
+        output.textContent = 'Error: ' + err.message;
+      }
+    });
+  </script>
+</body>
+</html>
+<!-- This HTML file serves as the frontend for the Financial Trading Assistant application. It includes a form for user input and displays the analysis results. The JavaScript fetches data from the backend and updates the UI accordingly. -->
